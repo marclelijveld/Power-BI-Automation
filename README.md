@@ -6,7 +6,6 @@ $SourceWorkspaceName = "DP_DEMO_dev"
 $DestinationWorkspaceName = "DP_DEMO_acc"
 $DataflowName = "DemoEntity"
 
-
 Script to move dataflows across Power BI workspaces. 
 Please know that: 
 - The workspace name will be used to lookup the workspace id (for both source and destination workspace).
