@@ -2,9 +2,7 @@
 Automate tasks in Power BI based on the Power BI Powershell cmdlets and the Power BI REST API
 
 In order to make this work for you, replace the values provided as variables in: 
-$SourceWorkspaceName = "DP_DEMO_dev"
-$DestinationWorkspaceName = "DP_DEMO_acc"
-$DataflowName = "DemoEntity"
+$SourceWorkspaceName, $DestinationWorkspaceName and $DataflowName 
 
 Script to move dataflows across Power BI workspaces. 
 Please know that: 
