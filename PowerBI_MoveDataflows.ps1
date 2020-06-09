@@ -34,6 +34,14 @@ function _getPowerBIDataflowDefinition([string] $GroupID, [string]$DataflowName)
         $url = [string]::Format("groups/{0}/dataflows/{1}", $GroupID, $flow.objectId);
         $flowdefinition = Invoke-PowerBIRestMethod -Method GET -Url $url | ConvertFrom-Json
 
+        # check for allowNativeQueries
+        #    "pbi:mashup": {
+        #    "allowNativeQueries": false,
+        if ($flowdefinition.'pbi:mashup'.'allowNativeQueries')
+        {
+            $flowdefinition.'pbi:mashup'.'allowNativeQueries'= $FALSE
+        }
+
         forEach ($entity in $flowdefinition.entities) {
             if (Get-Member -InputObject $entity -Name "partitions" -MemberType Properties) {
                 $entity.partitions = @()
