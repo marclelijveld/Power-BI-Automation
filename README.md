@@ -11,3 +11,6 @@ Please know that:
 - If the dataflow already exists, it will be replaced. 
 
 The tasks applied in this Powershells script are described in detail on https://data-marc.com/2019/10/22/move-dataflows-across-workspaces-with-the-power-bi-rest-api
+Also check the ConflictHandlerMode options you have in the Microsoft documemtation: https://docs.microsoft.com/en-us/rest/api/power-bi/imports/postimport#importconflicthandlermode
+These properties can be changed in the code according to your preference. 
+
