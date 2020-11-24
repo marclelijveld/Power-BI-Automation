@@ -58,8 +58,10 @@ function _postDataflowDefinition([string] $GroupID, [string]$DataflowDefinition)
 
     $UserAccessToken = Get-PowerBIAccessToken
     $bearer = $UserAccessToken.Authorization.ToString()
-    
-    $url = [string]::Format("https://api.powerbi.com/v1.0/myorg/groups/{0}/imports?datasetDisplayName=model.json&nameConflict=Overwrite", $GroupID);
+
+    # Consider changing the Conflict Handler Mode in below API call (at the end). Default is Ignore, which will result in adding an index number to the dataflow name after publishing.
+    # See all options you have in the documentation here: https://docs.microsoft.com/en-us/rest/api/power-bi/imports/postimportingroup?WT.mc_id=DP-MVP-5003435&#importconflicthandlermode  
+    $url = [string]::Format("https://api.powerbi.com/v1.0/myorg/groups/{0}/imports?datasetDisplayName=model.json&nameConflict=Ignore", $GroupID);
 
     $boundary = [System.Guid]::NewGuid().ToString("N")
     $LF = [System.Environment]::NewLine
