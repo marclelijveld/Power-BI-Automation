@@ -59,7 +59,7 @@ function _postDataflowDefinition([string] $GroupID, [string]$DataflowDefinition)
     $UserAccessToken = Get-PowerBIAccessToken
     $bearer = $UserAccessToken.Authorization.ToString()
     
-    $url = [string]::Format("https://api.powerbi.com/v1.0/myorg/groups/{0}/imports?datasetDisplayName=model.json&nameConflict=Ignore", $GroupID);
+    $url = [string]::Format("https://api.powerbi.com/v1.0/myorg/groups/{0}/imports?datasetDisplayName=model.json&nameConflict=Overwrite", $GroupID);
 
     $boundary = [System.Guid]::NewGuid().ToString("N")
     $LF = [System.Environment]::NewLine
