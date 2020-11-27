@@ -1,4 +1,19 @@
-﻿# [OutputType([Void])]
+﻿<# 
+In order to make this work for you, replace the values provided as variables in: $SourceWorkspaceName, $DestinationWorkspaceName and $DataflowName
+
+Script to move dataflows across Power BI workspaces. Please know that:
+- The workspace name will be used to lookup the workspace id (for both source and destination workspace).
+- The dataflows are defined in the $dataflowItems variable. All dataflows listed here, will be moved. 
+- It is possible to dynamically replace connectionstrings during deployment. Please see the $replaceItems variable to define the search and replace value. 
+- If the dataflow already exists, it will be replaced.
+
+The tasks applied in this Powershells script are described in detail on https://data-marc.com/2019/10/22/move-dataflows-across-workspaces-with-the-power-bi-rest-api 
+Also check the ConflictHandlerMode options you have in the Microsoft documemtation: https://docs.microsoft.com/en-us/rest/api/power-bi/imports/postimport?WT.mc_id=DP-MVP-5003435&#importconflicthandlermode 
+These properties can be changed in the code according to your preference.
+#>
+
+
+# [OutputType([Void])]
 # Param (
 #     [Parameter(Mandatory = $true, Position = 0)]
 #     [ValidateNotNullOrEmpty()]
@@ -184,5 +199,3 @@ foreach ($dataflowitem in $dataFlowItems) {
         Write-Host -ForegroundColor Red -BackgroundColor Yellow ( [string]::Format("Source workspace '{0}' not found!", $dataflowitem.SourceWorkspaceName ) );
     }
 }
-
-
