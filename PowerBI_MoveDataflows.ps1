@@ -15,16 +15,56 @@
 #     [String] 
 #     $DataflowName"
 # )
-   
-$SourceWorkspaceName = "DP_DEMO_dev" 
-$DestinationWorkspaceName = "DP_DEMO_acc" 
 
-$DataflowName = "DemoEntity"     
+class DataFlow {
+    [string]$SourceWorkspaceName
+    [string]$DestinationWorkspaceName
+    [string]$DataflowName
+`
+    DataFlow([string]$SourceWorkspaceName, [string]$DestinationWorkspaceName,[string]$DataflowName) {
+        $this.SourceWorkspaceName = $SourceWorkspaceName
+        $this.DestinationWorkspaceName = $DestinationWorkspaceName
+        $this.DataflowName = $DataflowName
+    }
+}
 
+class Replacement {
+    [string]$SearchValue
+    [string]$ReplaceValue
+`
+    Replacement([string]$SearchValue, [string]$ReplaceValue) {
+        $this.SearchValue = $SearchValue
+        $this.ReplaceValue = $ReplaceValue
+    }
+}
+
+$dataFlowItems =@(
+    [DataFlow]::new("Sales Analytics DEV","Sales Analytics PRD","Sales Analytics Actuals"),
+    [DataFlow]::new("Sales Analytics DEV","Sales Analytics PRD","Sales Analytics Budgets"),
+    [DataFlow]::new("Sales Analytics DEV","Sales Analytics PRD","Sales Analytics Forecasts"),
+    [DataFlow]::new("Sales Analytics DEV","Sales Analytics PRD","Sales Analytics Management Structure"),
+    [DataFlow]::new("Sales Analytics DEV","Sales Analytics PRD","Sales Analytics Opportunity")
+)
+
+$replaceItems =@(
+    [Replacement]::new("https://dlswedemod01.blob.core.windows.net","https://dlswedemop01.blob.core.windows.net")
+)
 
 #
 # Script functions
 #
+function _getPowerBINameConflict([string] $GroupID, [string]$DataflowName) {
+    $url = [string]::Format("groups/{0}/dataflows", $GroupID);
+    $flowItems = Invoke-PowerBIRestMethod -Method GET -Url $url | ConvertFrom-Json
+    $flow = $flowItems.value | Where-Object { $_.name -eq $DataflowName }
+
+    if($flow) { 
+        return "Overwrite"
+    } else {
+        return "Ignore"
+    }   
+}
+
 function _getPowerBIDataflowDefinition([string] $GroupID, [string]$DataflowName) {
     $url = [string]::Format("groups/{0}/dataflows", $GroupID);
     $flowItems = Invoke-PowerBIRestMethod -Method GET -Url $url | ConvertFrom-Json
@@ -54,14 +94,12 @@ function _getPowerBIDataflowDefinition([string] $GroupID, [string]$DataflowName)
     }
 }
 
-function _postDataflowDefinition([string] $GroupID, [string]$DataflowDefinition) {
+function _postDataflowDefinition([string] $GroupID, [string]$DataflowDefinition, [string]$NameConflict) {
 
     $UserAccessToken = Get-PowerBIAccessToken
     $bearer = $UserAccessToken.Authorization.ToString()
-
-    # Consider changing the Conflict Handler Mode in below API call (at the end). Default is Ignore, which will result in adding an index number to the dataflow name after publishing.
-    # See all options you have in the documentation here: https://docs.microsoft.com/en-us/rest/api/power-bi/imports/postimportingroup?WT.mc_id=DP-MVP-5003435&#importconflicthandlermode  
-    $url = [string]::Format("https://api.powerbi.com/v1.0/myorg/groups/{0}/imports?datasetDisplayName=model.json&nameConflict=Ignore", $GroupID);
+    
+    $url = [string]::Format("https://api.powerbi.com/v1.0/myorg/groups/{0}/imports?datasetDisplayName=model.json&nameConflict={1}", $GroupID, $NameConflict);
 
     $boundary = [System.Guid]::NewGuid().ToString("N")
     $LF = [System.Environment]::NewLine
@@ -90,7 +128,6 @@ function _postDataflowDefinition([string] $GroupID, [string]$DataflowDefinition)
 # Main code
 #
 #
-
 $moduleName = Get-Module -ListAvailable -Verbose:$false | Where-Object { $_.Name -eq "MicrosoftPowerBIMgmt" } | Select-Object -ExpandProperty Name;
 if ([string]::IsNullOrEmpty($moduleName)) {
     Write-Host -ForegroundColor White "==============================================================================";
@@ -100,38 +137,52 @@ if ([string]::IsNullOrEmpty($moduleName)) {
 }
 
 Write-Host -ForegroundColor White "Connect to PowerBI service";
-Connect-PowerBIServiceAccount
+#Connect-PowerBIServiceAccount
 
-#
-# Get source workspace
-#
-$sourceWorkspace = Get-PowerBIWorkspace -Name $SourceWorkspaceName;
-
-if ($sourceWorkspace) {
+foreach ($dataflowitem in $dataFlowItems) {
     #
-    # Get destination workspace
+    # Get source workspace
     #
-    $destinationWorkspace = Get-PowerBIWorkspace -Name $DestinationWorkspaceName;
-    if ($destinationWorkspace) {
-        #
-        # Get dataflow object from source workspace
-        #
-        $dataflow = _getPowerBIDataflowDefinition -GroupID $sourceWorkspace.Id -DataflowName $DataflowName
-        if ($dataflow) {
-            $dataflowJSON = $dataflow | ConvertTo-Json -Depth 100 -Compress
+    Write-Host -ForegroundColor White ( [string]::Format("Get Power BI workspace '{0}'", $dataflowitem.SourceWorkspaceName) )
+    $sourceWorkspace = Get-PowerBIWorkspace -Name $dataflowitem.SourceWorkspaceName;
 
-            $newDataFlow = _postDataflowDefinition -GroupID $destinationWorkspace.Id -DataflowDefinition $dataflowJSON
+    if ($sourceWorkspace) {
+        #
+        # Get destination workspace
+        #
+        $destinationWorkspace = Get-PowerBIWorkspace -Name $dataflowitem.DestinationWorkspaceName;
+        if ($destinationWorkspace) {
+            #
+            # Get dataflow object from source workspace
+            #
+            $dataflowobject = _getPowerBIDataflowDefinition -GroupID $sourceWorkspace.Id -DataflowName $dataflowitem.DataflowName
+            
+            #
+            # Check if destination workflow exists
+            #
+            $conflictName = _getPowerBINameConflict -GroupID $destinationWorkspace.Id -DataflowName $dataflowitem.DataflowName
 
-            Write-Host -ForegroundColor White ( [string]::Format("New dataflow with id ""{0}"" created in workspace ""{1}""", $newDataFlow.id, $DestinationWorkspaceName ) )
+            if ($dataflowobject) {
+                $dataflowJSON = $dataflowobject | ConvertTo-Json -Depth 100 -Compress
+
+                foreach ($replace in $replaceItems) {
+                    $dataflowJSON = $dataflowJSON.Replace($replace.SearchValue,$replace.ReplaceValue)
+                }               
+
+                $newDataFlow = _postDataflowDefinition -GroupID $destinationWorkspace.Id -DataflowDefinition $dataflowJSON -NameConflict $conflictName
+                Write-Host -ForegroundColor White ( [string]::Format("New dataflow with id '{0}' created in workspace '{1}'", $newDataFlow.id, $dataflowitem.DestinationWorkspaceName ) )
+            }
+            else {
+                Write-Host -ForegroundColor Red -BackgroundColor Yellow ( [string]::Format("Dataflow '{0}' not found!", $dataflowitem.DataflowName ) );
+            }    
         }
         else {
-            Write-Host -ForegroundColor Red -BackgroundColor Yellow ( [string]::Format("Dataflow ""{0}"" not found!", $DataflowName ) );
-        }    
+            Write-Host -ForegroundColor Red -BackgroundColor Yellow ( [string]::Format("Destination workspace '{0}' not found!", $dataflowitem.DestinationWorkspaceName ) );
+        }
     }
     else {
-        Write-Host -ForegroundColor Red -BackgroundColor Yellow ( [string]::Format("Destination workspace ""{0}"" not found!", $DestinationWorkspaceName ) );
+        Write-Host -ForegroundColor Red -BackgroundColor Yellow ( [string]::Format("Source workspace '{0}' not found!", $dataflowitem.SourceWorkspaceName ) );
     }
 }
-else {
-    Write-Host -ForegroundColor Red -BackgroundColor Yellow ( [string]::Format("Source workspace ""{0}"" not found!", $SourceWorkspaceName ) );
-}
+
+
