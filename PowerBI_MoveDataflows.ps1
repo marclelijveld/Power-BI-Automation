@@ -137,7 +137,7 @@ if ([string]::IsNullOrEmpty($moduleName)) {
 }
 
 Write-Host -ForegroundColor White "Connect to PowerBI service";
-#Connect-PowerBIServiceAccount
+Connect-PowerBIServiceAccount
 
 foreach ($dataflowitem in $dataFlowItems) {
     #
