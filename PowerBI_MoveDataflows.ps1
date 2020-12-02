@@ -7,6 +7,8 @@ Script to move dataflows across Power BI workspaces. Please know that:
 - It is possible to dynamically replace connectionstrings during deployment. Please see the $replaceItems variable to define the search and replace value. 
 - If the dataflow already exists, it will be replaced.
 
+Check this blogpost for more details on recent changes: https://data-marc.com/2020/12/02/update-move-dataflows-across-workspaces/
+
 The tasks applied in this Powershells script are described in detail on https://data-marc.com/2019/10/22/move-dataflows-across-workspaces-with-the-power-bi-rest-api 
 Also check the ConflictHandlerMode options you have in the Microsoft documemtation: https://docs.microsoft.com/en-us/rest/api/power-bi/imports/postimport?WT.mc_id=DP-MVP-5003435&#importconflicthandlermode 
 These properties can be changed in the code according to your preference.
