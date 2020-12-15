@@ -6,7 +6,7 @@ All results captured will be dumped in a json file on the defined location below
 #>
 
 # Define workspace to cature the results from
-$WorkspaceId = "5d9e5023-3810-4cfa-abaf-4f0494b31404"
+$WorkspaceId = "{Enter-your-Workspace-id-here}"
 
 # Sign in to the Power BI Service using OAuth
 Write-Host -ForegroundColor White "Sign in to connect to the Power BI Service";
