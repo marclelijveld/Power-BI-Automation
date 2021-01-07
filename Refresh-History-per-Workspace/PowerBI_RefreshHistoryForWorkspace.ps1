@@ -7,8 +7,10 @@ The results of this script will contain multiple files all in the context of the
 - Dataset refresh history
 - Dataflow metadata, including all dataflow names and properties
 - Dataflow refresh history
-
 All results captured will be dumped in a sepatate json file on the defined location in the script. The default location is c:\RefreshHistoryDump. 
+
+For full details on the script and corresponding blogpost, please see: 
+https://data-marc.com/2021/01/07/extract-refresh-metrics-for-your-entire-power-bi-workspace/
 #>
 
 # In case you do not have the PowerShell Cmdlets for Power BI installed yet, please uncomment below row and install the module first. 
@@ -18,12 +20,14 @@ All results captured will be dumped in a sepatate json file on the defined locat
 # General parameters
 # =================================================================================================================================================
 # Define workspace to cature the results from
-$WorkspaceId = "{Your workspace id here}"
+$WorkspaceId = "{Enter your Workspace ID here}"
 
 # Base API for Power BI REST API
 $PbiRestApi = "https://api.powerbi.com/v1.0/myorg/"
 
 # Export data parameters
+$FolderName = "RefreshHistoryDump"
+$OutputLocation = "c:\"
 $DatePrefix = Get-Date -Format "yyyyMMdd_HHmm" 
 $DefaultFilePath = $Fullpath + "\" + $DatePrefix + "_" + $WorkspaceId + "_"
 # All exported files will be prefixed with above mentioned date and Workspace Id. 
@@ -37,8 +41,6 @@ Write-Host -ForegroundColor White "Sign in to connect to the Power BI Service";
 Connect-PowerBIServiceAccount
 
 # Create folder to dump results
-$FolderName = "RefreshHistoryDump"
-$OutputLocation = "c:\"
 $Fullpath = $OutputLocation + $FolderName
  if (-not (Test-Path $Fullpath)) {
         # Destination path does not exist, let's create it
@@ -53,13 +55,15 @@ $Fullpath = $OutputLocation + $FolderName
 # Dataflow tasks
 # =================================================================================================================================================
 # List all dataflows in specified workspace
+Write-Host "Collecting dataflow metadata..."
 $GetDataflowsApiCall = $PbiRestApi + "groups/" + $WorkspaceId + "/dataflows"
 $AllDataflows = Invoke-PowerBIRestMethod -Method GET -Url $GetDataflowsApiCall | ConvertFrom-Json
 $ListAllDataflows = $AllDataflows.value
 
 # Write dataflow metadata json
 $DataflowMetadataOutputLocation = $DefaultFilePath + 'DataflowMetadata.json'
-$ListAllDataflows | ConvertTo-Json  | Out-File $DataflowMetadataOutputLocation
+$ListAllDataflows | ConvertTo-Json  | Out-File $DataflowMetadataOutputLocation -ErrorAction Stop
+Write-Host "Dataflow metadata saved on defined location" -ForegroundColor Green
 
 # Function to get dataflow refresh results
 Function GetDataflowRefreshResults {
@@ -67,6 +71,7 @@ Function GetDataflowRefreshResults {
     param (
         [parameter(Mandatory = $true)][string]$DataflowId
     )
+    Write-Host "Collecting dataflow refresh history..." $DataflowId
     $GetDataflowRefreshHistory = $PbiRestApi + "groups/" + $WorkspaceId + "/dataflows/" + $DataflowId + "/transactions"
     $DataflowRefreshHistory = Invoke-PowerBIRestMethod -Method GET -Url $GetDataflowRefreshHistory | ConvertFrom-Json
     return $DataflowRefreshHistory.value
@@ -86,19 +91,22 @@ foreach($dataflow in $ListAllDataflows) {
 
 # Write dataflow refresh history json to output location
 $DataflowRefreshOutputLocation =  $DefaultFilePath + 'DataflowRefreshHistory.json'
-$DataflowResults  | ConvertTo-Json  | Out-File $DataflowRefreshOutputLocation
+$DataflowResults  | ConvertTo-Json  | Out-File $DataflowRefreshOutputLocation -ErrorAction Stop
+Write-Host "Dataflow refresh history saved on defined location" -ForegroundColor Green
 
 # =================================================================================================================================================
 # Dataset tasks
 # =================================================================================================================================================
 # List all datasets in specified workspace
+Write-Host "Collecting dataset metadata..."
 $GetDatasetsApiCall = $PbiRestApi + "groups/" + $WorkspaceId + "/datasets"
 $AllDatasets = Invoke-PowerBIRestMethod -Method GET -Url $GetDatasetsApiCall | ConvertFrom-Json
 $ListAllDatasets = $AllDatasets.value
 
 # Write dataset metadata json
 $DatasetsMetadataOutputLocation = $DefaultFilePath + 'DatasetsMetadata.json'
-$ListAllDatasets | ConvertTo-Json  | Out-File $DatasetsMetadataOutputLocation
+$ListAllDatasets | ConvertTo-Json  | Out-File $DatasetsMetadataOutputLocation -ErrorAction Stop
+Write-Host "Dataset metadata saved on defined location" -ForegroundColor Green
 
 # Function to get dataset refresh results
 Function GetDatasetRefreshResults {
@@ -106,6 +114,7 @@ Function GetDatasetRefreshResults {
     param (
         [parameter(Mandatory = $true)][string]$DatasetId
     )
+    Write-Host "Collecting dataset refresh history..." $DatasetId
     $GetDatasetRefreshHistory = $PbiRestApi + "groups/" + $WorkspaceId + "/datasets/" + $DatasetId + "/refreshes"
     $DatasetRefreshHistory = Invoke-PowerBIRestMethod -Method GET -Url $GetDatasetRefreshHistory | ConvertFrom-Json
     return $DatasetRefreshHistory.value
@@ -125,4 +134,12 @@ foreach($Dataset in $ListAllDatasets) {
 
 # Write dataset refresh history json to output location
 $DatasetRefreshOutputLocation =  $DefaultFilePath + 'DatasetRefreshHistory.json'
-$DatasetResults  | ConvertTo-Json  | Out-File $DatasetRefreshOutputLocation
+$DatasetResults  | ConvertTo-Json  | Out-File $DatasetRefreshOutputLocation -ErrorAction Stop
+Write-Host "Dataset refresh history saved on defined location" -ForegroundColor Green
+
+# =================================================================================================================================================
+# Closing script
+# =================================================================================================================================================
+Read-Host "Script finished. Press any key to close and open file location"
+# Open file location
+Invoke-Item $Fullpath
