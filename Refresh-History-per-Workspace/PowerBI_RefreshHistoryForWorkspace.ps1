@@ -1,9 +1,18 @@
 ﻿<# 
 This script helps you to get the refresh history of all dataflows and datasets in the specified workspace. 
-Please define the workspace id in the parameter below. 
+Please define the workspace id in the general parameter section below. 
 
-All results captured will be dumped in a json file on the defined location below. This allows you to run the script multiple times without overwriting history. 
+The results of this script will contain multiple files all in the context of the workspace defined: 
+- Dataset metadata, including all the dataset names and properties
+- Dataset refresh history
+- Dataflow metadata, including all dataflow names and properties
+- Dataflow refresh history
+
+All results captured will be dumped in a sepatate json file on the defined location in the script. The default location is c:\RefreshHistoryDump. 
 #>
+
+# In case you do not have the PowerShell Cmdlets for Power BI installed yet, please uncomment below row and install the module first. 
+# Install-Module -Name MicrosoftPowerBIMgmt
 
 # =================================================================================================================================================
 # General parameters
@@ -17,6 +26,8 @@ $PbiRestApi = "https://api.powerbi.com/v1.0/myorg/"
 # Export data parameters
 $DatePrefix = Get-Date -Format "yyyyMMdd_HHmm" 
 $DefaultFilePath = $Fullpath + "\" + $DatePrefix + "_" + $WorkspaceId + "_"
+# All exported files will be prefixed with above mentioned date and Workspace Id. 
+# This allows you to run the script multiple times without overwriting history. 
 
 # =================================================================================================================================================
 # General tasks
