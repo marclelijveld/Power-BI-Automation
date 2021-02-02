@@ -29,18 +29,16 @@ if ([string]::IsNullOrEmpty($moduleName)) {
 $TmslScript = 
 @"
     {  
-@ -20,14 +51,20 @@ $TmslScript =
-        "type": "full",  
+      "refresh": {  
+        "type": "automatic",  
         "objects": [  
           {  
-            "database": "Cellar Planning Dataset",  
-            "table": "Production Orders",
-            "database": "$DatasetName",  
-            "table": "$TableName"
+                "database": "$DatasetName",  
+                "table": "$TableName"
           }  
         ]  
       }  
-    } 
+    }  
 "@
 
 # Execute refresh trigger on specified table
