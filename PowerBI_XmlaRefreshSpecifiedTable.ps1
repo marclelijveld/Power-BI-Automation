@@ -1,9 +1,8 @@
 # TMSL Script
-# Example TMSL scripts: https://docs.microsoft.com/en-us/analysis-services/tmsl/refresh-command-tmsl?WT.mc_id=DP-MVP-5003435&view=asallproducts-allversions
 # This script helps you refresh a specified table in a specified dataset
 # Please know this leverages Power BI XMLA endpoints and therefor Power BI Premium or Premium per user.  
 # For full documenation, please look at: https://docs.microsoft.com/en-us/analysis-services/tmsl/refresh-command-tmsl?WT.mc_id=DP-MVP-5003435&view=asallproducts-allversions
-
+# Also check my blogpost on this topic here: https://data-marc.com/2021/02/18/trigger-a-single-table-to-refresh-in-the-power-bi-service/
 
 # Run parameters, please specify below parameters
 $WorkspaceName = "{Your workspace name here}" #Here it is the workspace name! Not the id! 
