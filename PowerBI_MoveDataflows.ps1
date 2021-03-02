@@ -64,7 +64,7 @@ $dataFlowItems =@(
 )
 
 $replaceItems =@(
-    [Replacement]::new("https://dlswedemod01.blob.core.windows.net","https://dlswedemop01.blob.core.windows.net")
+    [Replacement]::new("https://yourconnectionindev.blob.core.windows.net","https://yourconnectioninprod.blob.core.windows.net")
 )
 
 #
