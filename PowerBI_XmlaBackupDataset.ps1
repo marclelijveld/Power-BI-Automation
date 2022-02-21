@@ -5,8 +5,8 @@
 #>
 
 # Run parameters, please specify below parameters
-$WorkspaceName = "DEMO%20-%20Advanced%20data%20modeling" #Here it is the workspace name! Not the id! Please replace spaces for %20 
-$DatasetName = "UltimateModel" #DatasetName to find the dataset and later to be used in backup filename
+$WorkspaceName = "DEMO%20-%20Backup%20data%20model" # Here specify the workspace name, not the id! Please replace spaces for %20. This is used to concatenate the XMLA endpoint later. 
+$DatasetName = "Example Model" # DatasetName to find the dataset and later to be used in backup filename
 
 # Base variables
 $PbiBaseConnection = "powerbi://api.powerbi.com/v1.0/myorg/"
