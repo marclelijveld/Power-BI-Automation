@@ -1,7 +1,10 @@
 ﻿<# 
     This script helps you to perform backup operations for your Power BI Premium dataset. 
-    Read more about backup and restore for Power BI in this documenation: https://docs.microsoft.com/en-us/power-bi/admin/service-premium-backup-restore-dataset?WT.mc_id=DP-MVP-5003435&
-    In case you want to tweak the TMSL, go checkout this documentation: https://docs.microsoft.com/en-us/analysis-services/multidimensional-models-scripting-language-assl-xmla/backing-up-restoring-and-synchronizing-databases-xmla?WT.mc_id=DP-MVP-5003435&view=asallproducts-allversions#backing_up_databases
+    Read more about this script in this blogpost: https://data-marc.com/2022/02/21/script-and-automate-power-bi-backup-operations/
+
+    Also find related documentation here: 
+    https://docs.microsoft.com/en-us/power-bi/admin/service-premium-backup-restore-dataset?WT.mc_id=DP-MVP-5003435&
+    https://docs.microsoft.com/en-us/analysis-services/multidimensional-models-scripting-language-assl-xmla/backing-up-restoring-and-synchronizing-databases-xmla?WT.mc_id=DP-MVP-5003435&view=asallproducts-allversions#backing_up_databases
 #>
 
 # Run parameters, please specify below parameters
