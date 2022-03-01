@@ -1,4 +1,12 @@
-﻿# Run parameters, please specify below parameters
+﻿<# 
+    This script helps you to recreate row or object level security roles, and assign users to these roles.  
+    
+    Also find related documentation here: 
+    https://docs.microsoft.com/en-us/azure/analysis-services/analysis-services-database-users?WT.mc_id=DP-MVP-5003435&
+    https://docs.microsoft.com/en-us/analysis-services/tmsl/createorreplace-command-tmsl?WT.mc_id=DP-MVP-5003435&view=asallproducts-allversions
+#>
+
+# Run parameters, please specify below parameters
 $WorkspaceName = "YourWorkspaceName" # Here specify the workspace name, not the id! Please replace spaces for %20. This is used to concatenate the XMLA endpoint later. 
 $DatasetName = "YourDatasetName" # DatasetName to find the dataset and later to be used in backup filename
 $RoleName = "YourRoleName"
