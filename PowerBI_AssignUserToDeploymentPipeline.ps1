@@ -10,6 +10,9 @@ Permission: Power BI Service Administrator
 For full documenation on APIs used, please look at: 
 - Get pipelines: https://docs.microsoft.com/en-us/rest/api/power-bi/admin/pipelines-get-pipelines-as-admin?WT.mc_id=DP-MVP-5003435
 - Add user to pipeline: https://docs.microsoft.com/en-us/rest/api/power-bi/admin/pipelines-update-user-as-admin?WT.mc_id=DP-MVP-5003435
+
+Blog post with use case and step by step guide can be found here: 
+https://data-marc.com/2022/07/26/add-user-to-power-bi-deployment-pipeline-using-rest-apis/
 #> 
 
 # =================================================================================================================================================
