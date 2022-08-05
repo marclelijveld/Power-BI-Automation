@@ -24,7 +24,7 @@ $BasePowerBIRestApi = "https://api.powerbi.com/v1.0/myorg/"
 # =================================================================================================================================================
 # Check task for Power BI Module
 # =================================================================================================================================================
-# Check whether the Power bI module is installed. If not, it will be installed. 
+# Check whether the Power BI module is installed. If not, it will be installed. 
 $moduleName = Get-Module -ListAvailable -Verbose:$false | Where-Object { $_.Name -eq "MicrosoftPowerBIMgmt" } | Select-Object -ExpandProperty Name;
 if ([string]::IsNullOrEmpty($moduleName)) {
     Write-Host -ForegroundColor White "==============================================================================";
