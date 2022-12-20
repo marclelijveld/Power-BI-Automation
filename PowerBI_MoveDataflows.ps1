@@ -1,4 +1,4 @@
-﻿<# 
+<# 
 In order to make this work for you, replace the values provided as variables in: $SourceWorkspaceName, $DestinationWorkspaceName and $DataflowName
 
 Script to move dataflows across Power BI workspaces. Please know that:
@@ -13,6 +13,9 @@ The tasks applied in this Powershells script are described in detail on https://
 Also check the ConflictHandlerMode options you have in the Microsoft documemtation: https://docs.microsoft.com/en-us/rest/api/power-bi/imports/postimport?WT.mc_id=DP-MVP-5003435&#importconflicthandlermode 
 These properties can be changed in the code according to your preference.
 #>
+
+
+
 
 
 # [OutputType([Void])]
@@ -32,6 +35,19 @@ These properties can be changed in the code according to your preference.
 #     [String] 
 #     $DataflowName"
 # )
+
+# =================================================================================================================================================
+# General parameters
+# =================================================================================================================================================
+# Define workspace to cature the results from
+$sourceWorkspace = "QFI-KPI-Tree"
+$destinationWorkspace = "QFI_Copy_Test"
+# Base API for Power BI REST API
+$PbiRestApi = "https://api.powerbi.com/v1.0/myorg/"
+
+
+
+
 
 class DataFlow {
     [string]$SourceWorkspaceName
@@ -55,13 +71,6 @@ class Replacement {
     }
 }
 
-$dataFlowItems =@(
-    [DataFlow]::new("Sales Analytics DEV","Sales Analytics PRD","Sales Analytics Actuals"),
-    [DataFlow]::new("Sales Analytics DEV","Sales Analytics PRD","Sales Analytics Budgets"),
-    [DataFlow]::new("Sales Analytics DEV","Sales Analytics PRD","Sales Analytics Forecasts"),
-    [DataFlow]::new("Sales Analytics DEV","Sales Analytics PRD","Sales Analytics Management Structure"),
-    [DataFlow]::new("Sales Analytics DEV","Sales Analytics PRD","Sales Analytics Opportunity")
-)
 
 $replaceItems =@(
     [Replacement]::new("https://yourconnectionindev.blob.core.windows.net","https://yourconnectioninprod.blob.core.windows.net")
@@ -156,11 +165,36 @@ if ([string]::IsNullOrEmpty($moduleName)) {
 Write-Host -ForegroundColor White "Connect to PowerBI service";
 Connect-PowerBIServiceAccount
 
+
+$sourceWorkspace = Get-PowerBIWorkspace -Name $sourceWorkspace| Select-Object -First 1
+$destinationWorkspace = Get-PowerBIWorkspace -Name $destinationWorkspace| Select-Object -First 1
+
+# List all dataflows in specified workspace
+
+Write-Host "Collecting dataflow metadata..."
+$GetDataflowsApiCall = $PbiRestApi + "groups/" + $SourceWorkspace.Id + "/dataflows"
+$AllDataflows = Invoke-PowerBIRestMethod -Method GET -Url $GetDataflowsApiCall | ConvertFrom-Json
+$ListAllDataflows = $AllDataflows.value;
+
+
+
+$dataFlowItems =New-Object System.Collections.ArrayList;
+
+foreach ($dataflow in $ListAllDataflows) {
+$dataFlowItems.Add([DataFlow]::new($SourceWorkspace.name,$destinationWorkspace.name,$dataflow.name))
+}
+
+
+
+
 foreach ($dataflowitem in $dataFlowItems) {
+   
     #
     # Get source workspace
     #
     Write-Host -ForegroundColor White ( [string]::Format("Get Power BI workspace '{0}'", $dataflowitem.SourceWorkspaceName) )
+    Write-Host -ForegroundColor White ( [string]::Format("Get Power BI dataflow '{0}'",$dataflowitem.DataflowName) )
+    
     $sourceWorkspace = Get-PowerBIWorkspace -Name $dataflowitem.SourceWorkspaceName;
 
     if ($sourceWorkspace) {
@@ -187,7 +221,7 @@ foreach ($dataflowitem in $dataFlowItems) {
                 }               
 
                 $newDataFlow = _postDataflowDefinition -GroupID $destinationWorkspace.Id -DataflowDefinition $dataflowJSON -NameConflict $conflictName
-                Write-Host -ForegroundColor White ( [string]::Format("New dataflow with id '{0}' created in workspace '{1}'", $newDataFlow.id, $dataflowitem.DestinationWorkspaceName ) )
+                Write-Host -ForegroundColor Black -BackgroundColor Green ( [string]::Format("New dataflow with id '{0}' created in workspace '{1}'", $newDataFlow.id, $dataflowitem.DestinationWorkspaceName ) )
             }
             else {
                 Write-Host -ForegroundColor Red -BackgroundColor Yellow ( [string]::Format("Dataflow '{0}' not found!", $dataflowitem.DataflowName ) );
