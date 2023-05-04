@@ -21,7 +21,7 @@ if ([string]::IsNullOrEmpty($moduleName)) {
 # =================================================================================================================================================
 
 # Variables
-$CapacityId = "{InsertCapacityId}"
+$UPN = "{InsertUpn}"
 $WorkspaceId = "{InsertWorkspaceId}"
 $TenantId = "{InsertTenantId}" #Only applicable with SPN authentication
 
@@ -35,27 +35,21 @@ $ClientId = $SpInlog.ClientId
 #>
 
 # =================================================================================================================================================
-# Premium Capacity Tasks - Permissions: Capacity.ReadWrite.All or assignment permissions on the capacity
+# Workspace Permission Tasks - Permissions: Tenant.ReadWrite.All
 # =================================================================================================================================================
 
-# Assign workspace to capacity
-$bodyAssign = 
+# Assign user to workspace
+$bodyAddUser = 
 @"
     {
-      "capacityId": "$CapacityId"
+      "emailAddress": "$UPN",
+      "groupUserAccessRight": "Admin"
     }
-"@
+"@ 
 
-$assignPremium = "https://api.powerbi.com/v1.0/myorg/groups/$WorkspaceId/AssignToCapacity"
-Invoke-PowerBIRestMethod -Method POST -Url $assignPremium -Body $bodyAssign -ErrorAction Stop -Verbose
+$addUser = "https://api.powerbi.com/v1.0/myorg/admin/groups/$WorkspaceId/users"
+Invoke-PowerBIRestMethod -Method POST -Url $addUser -Body $bodyAddUser -ErrorAction Stop
 
-# Remove workspace from capacity
-$bodyUnassign = 
-@"
-    {
-      "capacityId": "00000000-0000-0000-0000-000000000000"
-    }
-"@
-
-$unassignPremium = "https://api.powerbi.com/v1.0/myorg/groups/$WorkspaceId/AssignToCapacity"
-Invoke-PowerBIRestMethod -Method POST -Url $unassignPremium -Body $bodyUnassign -ErrorAction Stop
+# Remove user from workspace
+$removePremissions = "https://api.powerbi.com/v1.0/myorg/admin/groups/$WorkspaceId/users/$UPN"
+Invoke-PowerBIRestMethod -Method DELETE -Url $removePremissions -ErrorAction Stop
