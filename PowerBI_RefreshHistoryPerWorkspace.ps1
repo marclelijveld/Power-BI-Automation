@@ -29,16 +29,6 @@ $PbiRestApi = "https://api.powerbi.com/v1.0/myorg/"
 $FolderName = "RefreshHistoryDump"
 $OutputLocation = "c:\"
 $DatePrefix = Get-Date -Format "yyyyMMdd_HHmm" 
-$DefaultFilePath = $Fullpath + "\" + $DatePrefix + "_" + $WorkspaceId + "_"
-# All exported files will be prefixed with above mentioned date and Workspace Id. 
-# This allows you to run the script multiple times without overwriting history. 
-
-# =================================================================================================================================================
-# General tasks
-# =================================================================================================================================================
-# Sign in to the Power BI Service using OAuth
-Write-Host -ForegroundColor White "Sign in to connect to the Power BI Service";
-Connect-PowerBIServiceAccount
 
 # Create folder to dump results
 $Fullpath = $OutputLocation + $FolderName
@@ -50,6 +40,18 @@ $Fullpath = $OutputLocation + $FolderName
             throw "Could not create path '$Fullpath'!"
         }
     }
+
+$DefaultFilePath = $Fullpath + "\" + $DatePrefix + "_" + $WorkspaceId + "_"
+# All exported files will be prefixed with above mentioned date and Workspace Id. 
+# This allows you to run the script multiple times without overwriting history. 
+
+# =================================================================================================================================================
+# General tasks
+# =================================================================================================================================================
+# Sign in to the Power BI Service using OAuth
+Write-Host -ForegroundColor White "Sign in to connect to the Power BI Service";
+Connect-PowerBIServiceAccount
+
 
 # =================================================================================================================================================
 # Dataflow tasks
