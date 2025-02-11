@@ -2,6 +2,10 @@
 This folder contains scripts to help you setup training workspaces for either Power BI or Fabric training. 
 These scripts will help trainers to setup their environment for a training where each attendee requires a dedicated workspace for exercises. The second script will help to clean up the environment and delete all that was created. 
 
+More context and related blog can be found [here](https://data-marc.com/2025/02/11/behind-the-scenes-how-i-automated-my-fabric-workshop-training/)
+Please feel free to contribute to this repository! Open a pull request and adjust these scripts or add yours! 
+
+
 ## Fabric_GenerateUserWorkspaces.ps1
 This script is intended to generate workspaces in bulk to prepare empty workspaces for a training, event precon or postcon. 
 
